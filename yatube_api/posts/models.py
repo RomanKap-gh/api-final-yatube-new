@@ -28,6 +28,9 @@ class Post(models.Model):
     def __str__(self):
         return self.text
 
+    class Meta:
+        ordering = ('pub_date',)
+
 
 class Comment(models.Model):
     author = models.ForeignKey(
@@ -44,3 +47,11 @@ class Follow(models.Model):
         User, on_delete=models.CASCADE, related_name='followers')
     following = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='following')
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(user=models.F('following')),
+                name='prevent subscribing to yourself'
+            )
+        ]
